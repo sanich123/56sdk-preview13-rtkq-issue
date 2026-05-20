@@ -5,7 +5,7 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { WebBadge } from "@/components/web-badge";
 import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
-import { useGetPokemonByNameQuery, usePostSmthngMutation } from "@/redux/api";
+import { usePostSmthngMutation } from "@/redux/api";
 import { useEffect, useState } from "react";
 
 export default function HomeScreen() {
@@ -44,7 +44,7 @@ export default function HomeScreen() {
           }
         />
         <Button
-          title="Make a post request without rtkq"
+          title="Make a post request with fetch"
           onPress={async () => {
             const res = await fetch("https://httpbin.org/post", {
               method: "POST",
