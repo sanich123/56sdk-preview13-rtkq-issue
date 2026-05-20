@@ -1,14 +1,26 @@
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { Button, Platform, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AnimatedIcon } from "@/components/animated-icon";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { WebBadge } from "@/components/web-badge";
 import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
-import { useGetPokemonByNameQuery } from "@/redux/api";
+import { useGetPokemonByNameQuery, usePostSmthngMutation } from "@/redux/api";
+import { useEffect, useState } from "react";
 
 export default function HomeScreen() {
-  const { data, error, isLoading } = useGetPokemonByNameQuery("bulbasaur");
+  const [postSomething] = usePostSmthngMutation();
+  const [request, setRequest] = useState("");
+
+  useEffect(() => {
+    if (request) {
+      const timer = setTimeout(() => {
+        setRequest("");
+      }, 10000);
+      return () => clearTimeout(timer);
+    }
+  }, [request]);
+
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
@@ -18,16 +30,33 @@ export default function HomeScreen() {
             Welcome to&nbsp;Expo
           </ThemedText>
         </ThemedView>
-        {error ? (
-          <Text>{JSON.stringify(error, null, 2)}</Text>
-        ) : isLoading ? (
-          <Text>Loading...</Text>
-        ) : data ? (
-          <View>
-            <Text>{data.species.name}</Text>
-          </View>
-        ) : null}
-
+        {request ? <ThemedText>{JSON.stringify(request)}</ThemedText> : null}
+        <ThemedText style={styles.title}>
+          Where: https://httpbin.org/post
+        </ThemedText>
+        <Button
+          title="Make a rtkq post request"
+          onPress={() =>
+            postSomething({ hello: "world" })
+              .unwrap()
+              .then((response) => setRequest(response))
+              .catch((error) => console.log(JSON.stringify(error, null, 2)))
+          }
+        />
+        <Button
+          title="Make a post request without rtkq"
+          onPress={async () => {
+            const res = await fetch("https://httpbin.org/post", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ hello: "world" }),
+            });
+            const json = await res.json();
+            setRequest(json);
+          }}
+        />
         {Platform.OS === "web" && <WebBadge />}
       </SafeAreaView>
     </ThemedView>
