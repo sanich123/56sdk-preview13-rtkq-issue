@@ -11,7 +11,8 @@ import { useEffect, useState } from "react";
 export default function HomeScreen() {
   const [postSomething] = usePostSmthngMutation();
   const [request, setRequest] = useState("");
-
+  const formData = new FormData();
+  formData.set("hello", "world");
   useEffect(() => {
     if (request) {
       const timer = setTimeout(() => {
@@ -36,12 +37,12 @@ export default function HomeScreen() {
         </ThemedText>
         <Button
           title="Make a rtkq post request"
-          onPress={() =>
-            postSomething({ hello: "world" })
+          onPress={() => {
+            postSomething(formData)
               .unwrap()
               .then((response) => setRequest(response))
-              .catch((error) => console.log(JSON.stringify(error, null, 2)))
-          }
+              .catch((error) => console.log(JSON.stringify(error, null, 2)));
+          }}
         />
         <Button
           title="Make a post request with fetch"
@@ -51,7 +52,7 @@ export default function HomeScreen() {
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({ hello: "world" }),
+              body: JSON.stringify(formData),
             });
             const json = await res.json();
             setRequest(json);
